@@ -220,7 +220,7 @@ Native collection types are **not yet implemented**:
 
 Literal syntax (`[1, 2, 3]`, `{"key": value}`), index access (`arr[0]`, `map["key"]`),
 and index assignment are all planned. See
-[UPCOMING_DATA_STRUCTURES.md](UPCOMING_DATA_STRUCTURES.md) for the full implementation
+[roadmaps/UPCOMING_DATA_STRUCTURES.md](UPCOMING_DATA_STRUCTURES.md) for the full implementation
 plan.
 
 ---
