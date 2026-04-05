@@ -1,0 +1,77 @@
+// Example 07: Exception Handling
+// Demonstrates try/catch/finally, throw, multiple catch blocks,
+// and the panic() fatal panic.
+
+fn divide(a: Int, b: Int): Int {
+    if b == 0 {
+        throw IllegalArgumentException("Division by zero")
+    }
+    return a / b
+}
+
+fn safeParseInt(s: Str): Str {
+    try {
+        // Simulate a risky operation
+        throw RuntimeException("parse failed: ${s}")
+    } catch (e: RuntimeException) {
+        return "caught RuntimeException"
+    }
+    return "no error"
+}
+
+fn main() {
+    // ── Basic try / catch ────────────────────────────────────────
+
+    try {
+        throw RuntimeException("something went wrong")
+    } catch (e: RuntimeException) {
+        print("Caught: RuntimeException")
+    }
+
+    // ── try / catch / finally ────────────────────────────────────
+
+    try {
+        print("try block runs")
+    } catch (e: RuntimeException) {
+        print("this should not print")
+    } finally {
+        print("finally always runs")
+    }
+
+    // ── Multiple catch handlers ──────────────────────────────────
+
+    try {
+        throw IllegalArgumentException("bad argument")
+    } catch (e: IllegalArgumentException) {
+        print("Caught: IllegalArgumentException")
+    } catch (e: RuntimeException) {
+        print("Caught: RuntimeException (fallback)")
+    } finally {
+        print("cleanup after multi-catch")
+    }
+
+    // ── throw from a helper function ─────────────────────────────
+
+    try {
+        let result: Int = divide(10, 0)
+        print("Result: ${result}")
+    } catch (e: RuntimeException) {
+        print("Caught divide-by-zero")
+    }
+
+    let ok: Int = divide(10, 2)
+    print("10 / 2 = ${ok}")
+
+    // ── Using the helper that catches internally ─────────────────
+
+    let msg = safeParseInt("abc")
+    print(msg)
+
+    // ── try without throw — finally still runs ───────────────────
+
+    try {
+        print("no exception here")
+    } finally {
+        print("finally runs after clean try")
+    }
+}

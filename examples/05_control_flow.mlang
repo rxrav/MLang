@@ -1,0 +1,54 @@
+// Example 05: Control Flow
+// Demonstrates if/else and for loops with inclusive and exclusive ranges.
+
+fn main() {
+    // ── if / else if / else ──────────────────────────────────────
+
+    var score = 82
+
+    if score >= 90 {
+        print("Grade: A")
+    } else if score >= 80 {
+        print("Grade: B")
+    } else if score >= 70 {
+        print("Grade: C")
+    } else {
+        print("Grade: F")
+    }
+
+    // boolean condition
+    let isEven = score % 2 == 0
+    if isEven {
+        print("${score} is even")
+    } else {
+        print("${score} is odd")
+    }
+
+    // ── for loop with inclusive range (1..n) ────────────────────
+
+    print("Counting 1 to 5:")
+    for i in 1..5 {
+        print("  ${i}")
+    }
+
+    // Summing with a range
+    var total = 0
+    for i in 1..10 {
+        total = total + i
+    }
+    print("Sum 1..10 = ${total}")
+
+    // ── for loop with exclusive range (0..<n) ───────────────────
+
+    print("Counting 0 to 3 (exclusive 4):")
+    for i in 0..<4 {
+        print("  ${i}")
+    }
+
+    // Accumulate a product
+    var product = 1
+    for i in 1..<6 {
+        product = product * i
+    }
+    print("4! = 1*2*3*4 = ${product}")
+}

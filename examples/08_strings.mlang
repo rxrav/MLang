@@ -1,0 +1,67 @@
+// Example 08: Strings and Interpolation
+// Demonstrates string methods, concatenation, and ${...} interpolation.
+
+fn main() {
+    let name = "MLang"
+    let version = "0.1.0"
+
+    // Simple interpolation
+    print("Language: ${name} v${version}")
+
+    // Expression inside interpolation
+    let a = 6
+    let b = 7
+    print("${a} * ${b} = ${a * b}")
+
+    // Multi-segment interpolation
+    let first = "Alice"
+    let last  = "Smith"
+    print("Full name: ${first} ${last}")
+
+    // String concatenation with +
+    let greeting = "Hello" + ", " + name + "!"
+    print(greeting)
+
+    // String methods
+    let raw = "  hello, world!  "
+    let trimmed = raw.trim()
+    print("trimmed:   '${trimmed}'")
+
+    let upper = trimmed.toUpperCase()
+    print("uppercase: '${upper}'")
+
+    let lower = upper.toLowerCase()
+    print("lowercase: '${lower}'")
+
+    let len = trimmed.length()
+    print("length:    ${len}")
+
+    let empty = "".isEmpty()
+    print("isEmpty:   ${empty}")
+
+    // Method chaining via intermediate variables
+    let source  = "  MLang compiles to JVM  "
+    let cleaned = source.trim()
+    let shout   = cleaned.toUpperCase()
+    print(shout)
+
+    // Interpolation with method calls
+    let word = "hello"
+    print("Upper of '${word}': ${word.toUpperCase()}")
+
+    // replace — swap a substring (returns Str)
+    let sentence = "The quick brown fox"
+    let replaced = sentence.replace("fox", "cat")
+    print("replaced:  '${replaced}'")
+
+    // indexOf — 0-based position of first match (returns Int)
+    let pos = sentence.indexOf("quick")
+    print("indexOf \"quick\": ${pos}")
+
+    // substring — slice by start index (inclusive) to end index (exclusive)
+    let sliced = sentence.substring(4, 9)
+    print("substring(4,9): '${sliced}'")
+
+    // startsWith and endsWith are NOT safe to use in let-bindings or
+    // interpolation yet (unboxed boolean causes VerifyError — see example 13).
+}

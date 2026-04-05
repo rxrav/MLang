@@ -1,0 +1,120 @@
+// Example 10: Async / Await
+//
+// ENTRY POINT
+//   async fn main()  →  the correct way to write a top-level async program.
+//                       'await' is only valid inside an async fn.
+//                       The compiler wraps it as:
+//                         main(String[])V { supplyAsync(() -> __async$main()).join() }
+//                       This is analogous to Python's asyncio.run() or Kotlin's
+//                       runBlocking { }, but declared at the language level.
+//
+// CONCURRENCY PRIMITIVES
+//   async fn   →  CompletableFuture.supplyAsync() on the common ForkJoinPool
+//   await expr →  CompletableFuture.join() — block until the future resolves
+//                 *** only valid inside an async fn ***
+//   spawn_vthread fn(args)  →  Thread.ofVirtual().start(runnable)
+//   spawn_vthread { block } →  same, with an inline body
+//                 All spawned threads are joined automatically before the
+//                 enclosing function returns.
+//
+// KNOWN COMPILER LIMITATIONS (to be fixed in future releases)
+//   1. Passing an await result to a typed-param async fn causes a VerifyError.
+//      The result of await is Object on the stack; a checkCast to the param type
+//      is not yet emitted. Workaround: use untyped params (Any) or intermediate vars.
+//   2. Enclosing-scope variables cannot be referenced inside spawn_vthread call args
+//      or spawn_vthread { block } bodies. The lambda body is a closed static method
+//      that doesn't capture outer locals. Workaround: use string literals only.
+//
+// Thread.sleep(ms) simulates real I/O (network, database).
+
+// ── Simulated async services ──────────────────────────────────────────────────
+
+async fn fetchUser(): Str {
+    Thread.sleep(80)
+    return "alice"
+}
+
+async fn fetchScore(): Str {
+    Thread.sleep(60)
+    return "98"
+}
+
+async fn fetchTitle(): Str {
+    Thread.sleep(40)
+    return "MLang async demo"
+}
+
+// ── Chained await — async fn calling another async fn ────────────────────────
+// await is valid here because fetchProfile is itself async.
+
+async fn fetchProfile(): Str {
+    let user  = await fetchUser()
+    let score = await fetchScore()
+    return "${user} (score: ${score})"
+}
+
+// ── Parameterised async computation ──────────────────────────────────────────
+
+async fn asyncAdd(a: Int, b: Int): Str {
+    Thread.sleep(30)
+    let result = a + b
+    return "${result}"
+}
+
+// ── Fire-and-forget side-effect workers (for spawn_vthread) ──────────────────
+// These are plain fn, not async — spawn_vthread wraps them in a Runnable.
+
+fn sendAnalytics(event: Str) {
+    Thread.sleep(100)
+    print("  [vthread] analytics sent: ${event}")
+}
+
+fn writeAuditLog(msg: Str) {
+    Thread.sleep(70)
+    print("  [vthread] audit log: ${msg}")
+}
+
+// ── Entry point ───────────────────────────────────────────────────────────────
+// async fn main() is the async boundary. 'await' is legal anywhere inside it.
+// spawn_vthread runs side effects concurrently; they are joined before main exits.
+
+async fn main() {
+    print("=== 1. Basic await ===")
+    let user = await fetchUser()
+    print("  fetchUser()  ->  ${user}")
+
+    print("")
+    print("=== 2. Chained await: async fn that awaits another async fn ===")
+    let profile = await fetchProfile()
+    print("  fetchProfile()  ->  ${profile}")
+
+    print("")
+    print("=== 3. Sequential awaits - results used together ===")
+    let title = await fetchTitle()
+    let sum   = await asyncAdd(17, 25)
+    print("  fetchTitle()     ->  ${title}")
+    print("  asyncAdd(17, 25) ->  ${sum}")
+
+    print("")
+    print("=== 4. spawn_vthread - named fn, fire-and-collect side effect ===")
+    // main continues immediately; worker joins before main() returns
+    spawn_vthread sendAnalytics("page_view")
+    print("  main thread continued - sendAnalytics running on virtual thread")
+
+    print("")
+    print("=== 5. spawn_vthread - multiple concurrent workers ===")
+    spawn_vthread sendAnalytics("button_click")
+    spawn_vthread writeAuditLog("user login")
+    print("  two vthreads spawned concurrently")
+
+    print("")
+    print("=== 6. spawn_vthread - inline anonymous block ===")
+    spawn_vthread {
+        Thread.sleep(50)
+        print("  [vthread] inline block finished")
+    }
+    print("  main thread continued after inline spawn_vthread")
+
+    print("")
+    print("=== done - all vthreads joining now ===")
+}

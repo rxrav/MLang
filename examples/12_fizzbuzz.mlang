@@ -1,0 +1,28 @@
+// Example 12: FizzBuzz
+// Classic FizzBuzz from 1 to 30.
+// Combines: for loops, if/else chains, string interpolation, print().
+
+// Returns "Fizz", "Buzz", "FizzBuzz", or the number itself as a string.
+fn fizzBuzz(n: Int): Str {
+    if n % 15 == 0 {
+        return "FizzBuzz"
+    } else if n % 3 == 0 {
+        return "Fizz"
+    } else if n % 5 == 0 {
+        return "Buzz"
+    } else {
+        return "${n}"
+    }
+}
+
+fn main() {
+    print("FizzBuzz 1..30")
+    print("---")
+
+    for i in 1..30 {
+        print(fizzBuzz(i))
+    }
+
+    print("---")
+    print("done")
+}

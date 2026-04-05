@@ -1,0 +1,161 @@
+// Example 13: Java Standard Library Interop
+//
+// MLang compiles to JVM bytecode and can call Java standard library methods
+// through two dispatch mechanisms:
+//
+//   ClassName.method(args)  →  MRuntime.staticCall()  (static methods)
+//   object.method(args)     →  direct bytecode or MRuntime.dynCall() (instance)
+//
+// Numeric arguments are automatically widened to match parameter types
+// (e.g. Int literal → long for Thread.sleep).
+//
+// ── What works ───────────────────────────────────────────────────────────────
+
+// ── 1. java.lang.Math — static methods ───────────────────────────────────────
+
+fn demoMath() {
+    let root   = Math.sqrt(144.0)
+    let raised = Math.pow(2.0, 10.0)
+    let bigger = Math.max(13, 42)
+    let absVal = Math.abs(-7)
+    let flr    = Math.floor(3.9)
+    let ceil   = Math.ceil(3.1)
+    print("Math.sqrt(144.0)  = ${root}")
+    print("Math.pow(2.0,10)  = ${raised}")
+    print("Math.max(13,42)   = ${bigger}")
+    print("Math.abs(-7)      = ${absVal}")
+    print("Math.floor(3.9)   = ${flr}")
+    print("Math.ceil(3.1)    = ${ceil}")
+}
+
+// ── 2. Integer / Long / Double / Boolean — parse and format ──────────────────
+
+fn demoWrappers() {
+    let asInt   = Integer.parseInt("42")
+    let asLong  = Long.parseLong("9999999999")
+    let asDbl   = Double.parseDouble("3.14159")
+    let asBool  = Boolean.parseBoolean("true")
+    let binary  = Integer.toBinaryString(42)
+    let hex     = Integer.toHexString(255)
+    let octal   = Integer.toOctalString(8)
+    let asStr   = String.valueOf(12345)
+    print("Integer.parseInt(\"42\")         = ${asInt}")
+    print("Long.parseLong(\"9999999999\")   = ${asLong}")
+    print("Double.parseDouble(\"3.14159\") = ${asDbl}")
+    print("Boolean.parseBoolean(\"true\")  = ${asBool}")
+    print("Integer.toBinaryString(42)      = ${binary}")
+    print("Integer.toHexString(255)        = ${hex}")
+    print("Integer.toOctalString(8)        = ${octal}")
+    print("String.valueOf(12345)           = ${asStr}")
+}
+
+// ── 3. java.lang.String — instance methods (direct bytecode) ─────────────────
+
+fn demoStrings() {
+    let s = "  Hello, MLang World!  "
+    print("original      = '${s}'")
+    print("toUpperCase   = ${s.toUpperCase()}")
+    print("toLowerCase   = ${s.toLowerCase()}")
+    print("trim          = '${s.trim()}'")
+    print("strip         = '${s.strip()}'")
+    print("replace       = ${s.replace("MLang", "Java")}")
+    print("length        = ${s.length()}")
+}
+
+// ── 4. java.lang.Thread — static sleep ───────────────────────────────────────
+
+fn demoThread() {
+    let before = System.currentTimeMillis()
+    Thread.sleep(150)
+    let after  = System.currentTimeMillis()
+    print("Thread.sleep(150) completed")
+    print("System.currentTimeMillis() returned a timestamp (before < after: ${before})")
+}
+
+// ── 5. java.lang.System — utility statics ────────────────────────────────────
+
+fn demoSystem() {
+    let nanos = System.nanoTime()
+    print("System.nanoTime() returned a value")
+    System.gc()
+    print("System.gc() called (hint to garbage collector)")
+}
+
+// ── 6. java.lang.Character — static character utilities ──────────────────────
+// Note: MLang has no char literal syntax yet; pass the Unicode code point as Int.
+// '5' = 53, 'a' = 97, 'm' = 109
+
+fn demoChar() {
+    let isDigit  = Character.isDigit(53)
+    let isLetter = Character.isLetter(97)
+    let upper    = Character.toUpperCase(109)
+    print("Character.isDigit(53/'5')       = ${isDigit}")
+    print("Character.isLetter(97/'a')      = ${isLetter}")
+    print("Character.toUpperCase(109/'m')  = ${upper}")
+}
+
+// ── What does NOT work yet ────────────────────────────────────────────────────
+//
+// 1. Object construction — `new` is not a keyword in MLang.
+//    FAILS: let list = new java.util.ArrayList()
+//    WORKAROUND: none yet; planned for a future release.
+//
+// 2. Static field access — only method calls are supported, not field reads.
+//    FAILS: let max = Integer.MAX_VALUE
+//    FAILS: let pi  = Math.PI
+//    WORKAROUND: Integer.parseInt("2147483647"), Math.acos(-1.0)
+//
+// 3. Arithmetic on values returned from staticCall / dynCall.
+//    The result is typed as Any (Object) so direct + / - / * will VerifyError.
+//    FAILS: let t1 = System.currentTimeMillis()
+//           let t2 = System.currentTimeMillis()
+//           let elapsed = t2 - t1          // VerifyError: Object - Object
+//    WORKAROUND: pass to a typed fn or use String.valueOf for display.
+//
+// 4. String predicate methods (startsWith, endsWith, contains, isEmpty, isBlank)
+//    return an unboxed boolean (JVM type Z) that isn't yet auto-boxed when used
+//    in string interpolation or let-binding — causes VerifyError at runtime.
+//    FAILS: let found = "hello".contains("ell")
+//    FAILS: print("${s.startsWith("Hi")}")
+//    WORKAROUND: compare via indexOf, or wait for a boxing fix.
+//
+// 5. char literals — MLang has no char type yet; pass the Unicode code point (Int).
+//    FAILS: Character.isDigit('5')
+//    WORKS: Character.isDigit(53)   // 53 == '5'
+//
+// 6. Fully-qualified class names (outside java.lang.*).
+//    java.lang.* is resolved automatically. For other packages include the full name.
+//    e.g. java.util.Objects.toString(x)  — works, but most java.util types need `new`.
+
+fn main() {
+    print("==================================")
+    print("  Java Std Lib Interop Demo")
+    print("==================================")
+
+    print("")
+    print("-- 1. Math --")
+    demoMath()
+
+    print("")
+    print("-- 2. Wrapper parse / format --")
+    demoWrappers()
+
+    print("")
+    print("-- 3. String instance methods --")
+    demoStrings()
+
+    print("")
+    print("-- 4. Thread.sleep / System.currentTimeMillis --")
+    demoThread()
+
+    print("")
+    print("-- 5. System utilities --")
+    demoSystem()
+
+    print("")
+    print("-- 6. Character utilities --")
+    demoChar()
+
+    print("")
+    print("See source comments for current limitations.")
+}

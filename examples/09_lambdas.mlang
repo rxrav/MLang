@@ -1,0 +1,108 @@
+// Example 09: Lambdas
+// Demonstrates lambda syntax:
+//   { () -> expr }                     zero-parameter
+//   { (x) -> expr }                    one untyped parameter
+//   { (a, b) -> expr }                 two untyped parameters (any arity)
+//   { (a: T) -> expr }                 typed parameter
+//   { (a: T, b: T): RetType -> expr }  typed params + explicit return type
+//
+// Type annotations unlock proper primitive bytecode (ILOAD/LLOAD/FLOAD/DLOAD)
+// and enable return-value unboxing at the call site.
+//
+// All lambdas compile to invokedynamic backed by MRuntime.MLambda.
+// Lambdas are first-class values and are invoked like functions: f(args)
+
+fn applyAndPrint(label: Str) {
+    print("  ${label}")
+}
+
+fn main() {
+    print("-- Untyped lambdas ----------------------------------")
+
+    // Zero-parameter
+    let makeValue = { () -> 99 }
+    applyAndPrint("zero-param: makeValue()")
+    let v0 = makeValue()
+    print("  result = ${v0}")
+
+    // One-parameter — identity
+    let identity = { (x) -> x }
+    applyAndPrint("one-param: identity(42)")
+    let v1 = identity(42)
+    print("  result = ${v1}")
+
+    // Two-parameter — returns first arg
+    let pickFirst = { (a, b) -> a }
+    applyAndPrint("two-param: pickFirst(7, 99)")
+    let v2 = pickFirst(7, 99)
+    print("  result = ${v2}")
+
+    // Three-parameter
+    let pickMid = { (a, b, c) -> b }
+    applyAndPrint("three-param: pickMid(1, 2, 3)")
+    let v3 = pickMid(1, 2, 3)
+    print("  result = ${v3}")
+
+    // Multiple lambdas in the same scope — each gets a unique synthetic name
+    let f = { (x) -> x }
+    let g = { (y) -> y }
+    let h = { () -> 0 }
+    print("  three lambdas in same scope: ok")
+
+    print("")
+    print("-- Typed lambdas ------------------------------------")
+
+    // Int typed params and return
+    let addInts = { (a: Int, b: Int): Int -> a + b }
+    applyAndPrint("Int: addInts(10, 32)")
+    let ri = addInts(10, 32)
+    print("  result = ${ri}")
+
+    // Long: L suffix required for Long literals; two JVM slots per param
+    let addLongs = { (a: Long, b: Long): Long -> a + b }
+    applyAndPrint("Long: addLongs(10L, 20L)")
+    let rl = addLongs(10L, 20L)
+    print("  result = ${rl}")
+
+    // Float: f suffix required for Float literals
+    let avgFloat = { (a: Float, b: Float): Float -> (a + b) * 0.5f }
+    applyAndPrint("Float: avgFloat(3.0f, 7.0f)")
+    let rf = avgFloat(3.0f, 7.0f)
+    print("  result = ${rf}")
+
+    // Double
+    let scale = { (x: Double): Double -> x * 2.0 }
+    applyAndPrint("Double: scale(3.14)")
+    let rd = scale(3.14)
+    print("  result = ${rd}")
+
+    // Bool: Bool boxing/unboxing through java.lang.Boolean
+    let flip = { (b: Bool): Bool -> !b }
+    applyAndPrint("Bool: flip(false), flip(true)")
+    let rt = flip(false)
+    let rf2 = flip(true)
+    print("  flip(false) = ${rt}")
+    print("  flip(true)  = ${rf2}")
+
+    // Str: String is a reference type — no unboxing needed
+    let echo = { (s: Str): Str -> s }
+    applyAndPrint("Str: echo(\"mlang\")")
+    let rs = echo("mlang")
+    print("  result = ${rs}")
+
+    // Int literals widened to Double at pass-in (unboxIfPrimitive uses Number.doubleValue)
+    let lmdD = { (x: Double, y: Double): Double -> x * y }
+    applyAndPrint("Int→Double widening: lmdD(3, 4)")
+    let prodD = lmdD(3, 4)
+    print("  result = ${prodD}")
+
+    // Int literals widened to Float
+    let lmdF = { (x: Float, y: Float): Float -> x * y }
+    applyAndPrint("Int→Float widening: lmdF(3, 4)")
+    let prodF = lmdF(3, 4)
+    print("  result = ${prodF}")
+
+    print("")
+    print("All lambda examples compiled and invoked successfully.")
+}
+

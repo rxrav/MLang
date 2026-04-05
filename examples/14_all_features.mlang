@@ -1,0 +1,356 @@
+// Example 14: All Language Features
+//
+// A single file that exercises every feature of MLang:
+//   Variables (let/var, types, inference)
+//   Functions (block body, expression body, typed params/return)
+//   Operators (arithmetic, comparison, logical, unary, **)
+//   String interpolation
+//   Control flow (if/else if/else, for inclusive range, for exclusive range)
+//   Switch / case / default
+//   Exception handling (try/catch/finally, throw, multi-catch)
+//   Lambdas (0–3 params, typed param, first-class values)
+//   Async / await  (async fn, async fn main as entry point)
+//   spawn_vthread  (named fn, inline block)
+//   Java stdlib interop (Math, Integer, String methods, Thread.sleep)
+//   panic() and exit()
+
+// ═══════════════════════════════════════════════════════════════════════════
+// § 1 — Functions
+// ═══════════════════════════════════════════════════════════════════════════
+
+// Block-body function with typed parameters and return type
+fn add(a: Int, b: Int): Int {
+    return a + b
+}
+
+// Expression-body function (single expression, no braces)
+fn multiply(a: Int, b: Int): Int = a * b
+
+// Function returning a Str
+fn greet(name: Str): Str {
+    return "Hello, ${name}!"
+}
+
+// Recursive function
+fn factorial(n: Int): Int {
+    if n <= 1 {
+        return 1
+    }
+    return n * factorial(n - 1)
+}
+
+// Function with no return value (Unit)
+fn printRule(label: Str) {
+    print("-- ${label} ----------------------------------")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// § 2 — Switch helper functions
+// ═══════════════════════════════════════════════════════════════════════════
+
+fn httpStatus(code: Int): Str {
+    switch code {
+        case 200 -> { return "200 OK" }
+        case 201 -> { return "201 Created" }
+        case 400 -> { return "400 Bad Request" }
+        case 404 -> { return "404 Not Found" }
+        case 500 -> { return "500 Internal Server Error" }
+        default  -> { return "Unknown ${code}" }
+    }
+    return "Unknown"
+}
+
+fn seasonOf(month: Int): Str {
+    switch month {
+        case 12  -> { return "Winter" }
+        case 1   -> { return "Winter" }
+        case 2   -> { return "Winter" }
+        case 3   -> { return "Spring" }
+        case 4   -> { return "Spring" }
+        case 5   -> { return "Spring" }
+        case 6   -> { return "Summer" }
+        case 7   -> { return "Summer" }
+        case 8   -> { return "Summer" }
+        default  -> { return "Autumn" }
+    }
+    return "Autumn"
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// § 3 — Exception handling helpers
+// ═══════════════════════════════════════════════════════════════════════════
+
+fn safeDivide(a: Int, b: Int): Str {
+    if b == 0 {
+        throw IllegalArgumentException("Cannot divide by zero")
+    }
+    let result: Int = a / b
+    return "${result}"
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// § 4 — Async functions
+// ═══════════════════════════════════════════════════════════════════════════
+
+async fn fetchName(): Str {
+    Thread.sleep(40)
+    return "MLang"
+}
+
+async fn fetchVersion(): Str {
+    Thread.sleep(30)
+    return "0.1.0"
+}
+
+// Async fn that chains two awaits internally
+async fn fetchBanner(): Str {
+    let name    = await fetchName()
+    let version = await fetchVersion()
+    return "${name} v${version}"
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// § 5 — spawn_vthread workers
+// ═══════════════════════════════════════════════════════════════════════════
+
+fn logEvent(msg: Str) {
+    Thread.sleep(60)
+    print("  [vthread] ${msg}")
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
+// § 6 — Entry point: async fn main()
+//        await is only valid inside an async fn.
+//        The compiler emits: main(String[]) { supplyAsync(...).join() }
+// ═══════════════════════════════════════════════════════════════════════════
+
+async fn main() {
+
+    // ─── 1. Variables ──────────────────────────────────────────────────────
+    printRule("1. Variables")
+
+    let name: Str      = "Alice"          // immutable, explicit type
+    let age: Int       = 30
+    let height: Double = 1.75
+    let active: Bool   = true
+    let language       = "MLang"          // type inferred as Str
+    let year           = 2026             // type inferred as Int
+
+    print("name     = ${name}")
+    print("age      = ${age}")
+    print("height   = ${height}")
+    print("active   = ${active}")
+    print("language = ${language}")
+    print("year     = ${year}")
+
+    var counter = 0                       // mutable binding
+    counter = counter + 1
+    counter = counter + 1
+    counter = counter + 1
+    print("counter  = ${counter}")        // 3
+
+    // ─── 2. Operators ──────────────────────────────────────────────────────
+    printRule("2. Operators")
+
+    let a = 17
+    let b = 5
+    print("17 + 5  = ${a + b}")
+    print("17 - 5  = ${a - b}")
+    print("17 * 5  = ${a * b}")
+    print("17 / 5  = ${a / b}")
+    print("17 % 5  = ${a % b}")
+
+    let powered: Double = 2 ** 10         // ** uses Math.pow, returns Double
+    print("2 ** 10 = ${powered}")
+
+    let neg    = -age
+    let notIt  = !active
+    print("-age    = ${neg}")
+    print("!active = ${notIt}")
+
+    let lt  = a < 20
+    let eq  = a == 17
+    let neq = a != 99
+    let both    = true && true
+    let either  = false || true
+    print("17 < 20 = ${lt}")
+    print("17 == 17 = ${eq}")
+    print("17 != 99 = ${neq}")
+    print("true && true  = ${both}")
+    print("false || true = ${either}")
+
+    let concat = "Hello" + ", " + name + "!"
+    print(concat)
+
+    // ─── 3. String Interpolation ───────────────────────────────────────────
+    printRule("3. String Interpolation")
+
+    print("${name} is ${age} years old and ${height}m tall")
+    print("${a} + ${b} = ${a + b}")
+    print("Powered: ${powered}")
+
+    // ─── 4. Functions ──────────────────────────────────────────────────────
+    printRule("4. Functions")
+
+    let sum: Int = add(12, 8)
+    print("add(12,8)        = ${sum}")
+
+    let product: Int = multiply(6, 7)
+    print("multiply(6,7)    = ${product}")
+
+    print(greet(name))
+
+    let fact: Int = factorial(6)
+    print("factorial(6)     = ${fact}")
+
+    // ─── 5. Control Flow ───────────────────────────────────────────────────
+    printRule("5. Control Flow - if/else")
+
+    var score = 85
+    if score >= 90 {
+        print("Grade: A")
+    } else if score >= 80 {
+        print("Grade: B")
+    } else if score >= 70 {
+        print("Grade: C")
+    } else {
+        print("Grade: F")
+    }
+
+    printRule("5b. for - inclusive range")
+    var rangeSum = 0
+    for i in 1..5 {
+        rangeSum = rangeSum + i
+        print("  i = ${i}")
+    }
+    print("sum 1..5 = ${rangeSum}")
+
+    printRule("5c. for - exclusive range")
+    var exclSum = 0
+    for i in 0..<5 {
+        exclSum = exclSum + i
+    }
+    print("sum 0..<5 = ${exclSum}")
+
+    // ─── 6. Switch / Case ──────────────────────────────────────────────────
+    printRule("6. Switch")
+
+    print(httpStatus(200))
+    print(httpStatus(404))
+    print(httpStatus(999))
+
+    for month in 1..12 {
+        let season = seasonOf(month)
+        print("  month ${month} -> ${season}")
+    }
+
+    var code = 42
+    switch code {
+        case 0  -> print("  zero")
+        case 42 -> print("  the answer")
+        default -> print("  something else")
+    }
+
+    // ─── 7. Exception Handling ─────────────────────────────────────────────
+    printRule("7. Exceptions - try / catch / finally")
+
+    try {
+        throw RuntimeException("something went wrong")
+    } catch (e: RuntimeException) {
+        print("  Caught: RuntimeException")
+    }
+
+    try {
+        print("  try block")
+    } catch (e: RuntimeException) {
+        print("  should not print")
+    } finally {
+        print("  finally always runs")
+    }
+
+    try {
+        throw IllegalArgumentException("bad input")
+    } catch (e: IllegalArgumentException) {
+        print("  Caught: IllegalArgumentException")
+    } catch (e: RuntimeException) {
+        print("  Caught: RuntimeException (fallback)")
+    }
+
+    printRule("7b. throw from helper fn")
+    try {
+        let r = safeDivide(10, 0)
+        print("  result: ${r}")
+    } catch (e: RuntimeException) {
+        print("  Caught divide-by-zero")
+    }
+    let okDiv = safeDivide(20, 4)
+    print("  20 / 4 = ${okDiv}")
+
+    // ─── 8. Lambdas ────────────────────────────────────────────────────────
+    printRule("8. Lambdas")
+
+    let makeConst   = { () -> 99 }
+    let identify    = { (x) -> x }
+    let pickFirst   = { (a, b) -> a }
+    let pickMiddle  = { (a, b, c) -> b }
+    let typedDouble = { (n: Int) -> n }
+
+    print("  makeConst()           = ${makeConst()}")
+    print("  identify(42)          = ${identify(42)}")
+    print("  pickFirst(7, 99)      = ${pickFirst(7, 99)}")
+    print("  pickMiddle(1, 2, 3)   = ${pickMiddle(1, 2, 3)}")
+    print("  typedDouble(55)       = ${typedDouble(55)}")
+
+    // ─── 9. Async / Await ──────────────────────────────────────────────────
+    printRule("9. Async / Await")
+
+    let n    = await fetchName()
+    let ver  = await fetchVersion()
+    print("  fetchName()    = ${n}")
+    print("  fetchVersion() = ${ver}")
+
+    let banner = await fetchBanner()
+    print("  fetchBanner()  = ${banner}")
+
+    // ─── 10. spawn_vthread ─────────────────────────────────────────────────
+    printRule("10. spawn_vthread")
+
+    spawn_vthread logEvent("startup audit written")
+    spawn_vthread logEvent("metrics flushed")
+    print("  two workers spawned — main continues immediately")
+
+    spawn_vthread {
+        Thread.sleep(50)
+        print("  [vthread] inline block finished")
+    }
+    print("  inline spawn_vthread launched")
+
+    // ─── 11. Java Stdlib Interop ───────────────────────────────────────────
+    printRule("11. Java Stdlib Interop")
+
+    let root    = Math.sqrt(144.0)
+    let powered2: Double = 2 ** 10
+    let absVal  = Math.abs(-7)
+    print("  Math.sqrt(144.0) = ${root}")
+    print("  Math.abs(-7)     = ${absVal}")
+
+    let parsed  = Integer.parseInt("42")
+    let binary  = Integer.toBinaryString(42)
+    let hex     = Integer.toHexString(255)
+    print("  Integer.parseInt(\"42\")        = ${parsed}")
+    print("  Integer.toBinaryString(42)    = ${binary}")
+    print("  Integer.toHexString(255)      = ${hex}")
+
+    let s = "  Hello, MLang!  "
+    print("  original    = '${s}'")
+    print("  toUpperCase = ${s.toUpperCase()}")
+    print("  trim        = '${s.trim()}'")
+    print("  replace     = ${s.replace("MLang", "World")}")
+    print("  length      = ${s.length()}")
+
+    print("")
+    print("===============================================")
+    print("  All features demonstrated successfully.")
+    print("  (spawn_vthread workers joining now...)")
+    print("===============================================")
+}

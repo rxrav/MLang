@@ -1,0 +1,115 @@
+// Example 03: Functions
+// Demonstrates fn declaration, parameters, return types, expression bodies,
+// and calling functions from main() across all value types.
+
+// ── Int ───────────────────────────────────────────────────────────────────────
+
+// Block body, typed Int params and return
+fn add(a: Int, b: Int): Int {
+    return a + b
+}
+
+// Expression body — single expression, no braces
+fn multiply(a: Int, b: Int): Int = a * b
+
+// ── Double ────────────────────────────────────────────────────────────────────
+
+fn circle(r: Double): Double {
+    return r * r * 3.14159
+}
+
+// ── Long ─────────────────────────────────────────────────────────────────────
+// Long literals use the L suffix: 9999999999L
+// Long params/locals occupy two JVM slots.
+
+fn addLongs(a: Long, b: Long): Long {
+    return a + b
+}
+
+// ── Float ─────────────────────────────────────────────────────────────────────
+// Float literals use the f suffix: 1.5f
+
+fn avgFloat(a: Float, b: Float): Float {
+    return (a + b) * 0.5f
+}
+
+// ── Bool ──────────────────────────────────────────────────────────────────────
+
+fn negate(b: Bool): Bool {
+    if b { return false }
+    return true
+}
+
+fn isEven(n: Int): Bool {
+    if n % 2 == 0 { return true }
+    return false
+}
+
+// ── Str ───────────────────────────────────────────────────────────────────────
+
+fn greet(name: Str): Str {
+    return "Hello, ${name}!"
+}
+
+fn shout(s: Str): Str {
+    return s.toUpperCase()
+}
+
+// ── Recursive function ───────────────────────────────────────────────────────
+
+fn hypotenuse(a: Int, b: Int): Int {
+    let aa = a * a
+    let bb = b * b
+    return aa + bb
+}
+
+// ── Unit (no return value) ───────────────────────────────────────────────────
+
+fn printDivider() {
+    print("-----------------------------------")
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+
+fn main() {
+    printDivider()
+
+    // Int
+    let sum: Int = add(12, 8)
+    print("add(12, 8)          = ${sum}")
+
+    let product: Int = multiply(6, 7)
+    print("multiply(6, 7)      = ${product}")
+
+    // Double
+    let area = circle(5.0)
+    print("circle(5.0)         = ${area}")
+
+    // Long  (L suffix required for Long literals)
+    let bigSum = addLongs(9999999999L, 1L)
+    print("addLongs(...)       = ${bigSum}")
+
+    // Float  (f suffix required for Float literals)
+    let avg = avgFloat(3.0f, 7.0f)
+    print("avgFloat(3.0f,7.0f) = ${avg}")
+
+    // Bool as param and return
+    let flipped = negate(true)
+    print("negate(true)        = ${flipped}")
+
+    let even = isEven(8)
+    print("isEven(8)           = ${even}")
+
+    // Str as param and return
+    print(greet("World"))
+    print(shout("mlang"))
+
+    // Nested call using Int
+    let a = 3
+    let b = 4
+    let h: Int = hypotenuse(a, b)
+    print("hypotenuse(3,4)     = ${h}")
+
+    printDivider()
+}
+

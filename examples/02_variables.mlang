@@ -1,0 +1,31 @@
+// Example 02: Variables and Types
+// Demonstrates let (immutable), var (mutable), type annotations, and inference.
+
+fn main() {
+    // Immutable bindings with explicit types
+    let name: Str  = "Alice"
+    let age: Int   = 30
+    let height: Double = 1.75
+    let active: Bool   = true
+
+    print("Name:   ${name}")
+    print("Age:    ${age}")
+    print("Height: ${height}")
+    print("Active: ${active}")
+
+    // Type inference — annotation is optional
+    let language = "MLang"
+    let year     = 2026
+    let pi       = 3.14159
+
+    print("Language: ${language}")
+    print("Year:     ${year}")
+    print("Pi:       ${pi}")
+
+    // Mutable binding — can be reassigned
+    var counter: Int = 0
+    counter = counter + 1
+    counter = counter + 1
+    counter = counter + 1
+    print("Counter: ${counter}")
+}

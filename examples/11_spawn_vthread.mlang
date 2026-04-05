@@ -1,0 +1,38 @@
+// Example 11: spawn_vthread Virtual Threads
+// spawn_vthread spawns a Java 21 virtual thread for concurrent side effects.
+// Two forms:
+//   spawn_vthread fnName(args)   — spawn a named function call
+//   spawn_vthread { ... }        — spawn an anonymous lambda block
+// All spawned threads are joined automatically before the enclosing function
+// returns — no explicit join needed. For futures with return values, use
+// async/await instead.
+
+fn crunch(id: Int) {
+    print("spawn_vthread ${id} started")
+}
+
+fn cleanup() {
+    print("cleanup spawn_vthread done")
+}
+
+fn main() {
+    print("main: spawning workers")
+
+    // Spawn named function calls as virtual threads
+    spawn_vthread crunch(1)
+    spawn_vthread crunch(2)
+    spawn_vthread crunch(3)
+
+    // Spawn anonymous lambda blocks
+    spawn_vthread { print("anonymous spawn_vthread A") }
+    spawn_vthread { print("anonymous spawn_vthread B") }
+
+    // Spawn a zero-body spawn_vthread (no-op virtual thread)
+    spawn_vthread { }
+
+    // Spawn cleanup as a named function
+    spawn_vthread cleanup()
+
+    print("main: all workers spawned, main thread continues")
+    print("main: done")
+}

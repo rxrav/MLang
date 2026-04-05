@@ -1,0 +1,7 @@
+// Example 01: Hello World
+// The classic first program. Entry point is always fn main().
+
+fn main() {
+    print("Hello, World!")
+    print("Welcome to MLang!")
+}

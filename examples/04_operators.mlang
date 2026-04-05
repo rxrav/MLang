@@ -1,0 +1,59 @@
+// Example 04: Operators
+// Demonstrates arithmetic, comparison, logical, unary, and ** (power).
+
+fn main() {
+    // Arithmetic operators
+    let a = 17
+    let b = 5
+
+    let plus  = a + b
+    let minus = a - b
+    let times = a * b
+    let div   = a / b
+    let rem   = a % b
+
+    print("17 + 5 = ${plus}")
+    print("17 - 5 = ${minus}")
+    print("17 * 5 = ${times}")
+    print("17 / 5 = ${div}")
+    print("17 % 5 = ${rem}")
+
+    // Power operator — result is Double (uses Math.pow); must declare type explicitly
+    let squared: Double = 2 ** 8
+    print("2 ** 8 = ${squared}")
+
+    // Unary negation and logical NOT
+    let neg = -42
+    let notTrue = !true
+    let notFalse = !false
+    print("Negation: ${neg}")
+    print("!true  = ${notTrue}")
+    print("!false = ${notFalse}")
+
+    // Comparison operators — all produce Bool
+    let x = 10
+    let lt  = x < 20
+    let lte = x <= 10
+    let gt  = x > 5
+    let gte = x >= 11
+    let eq  = x == 10
+    let neq = x != 99
+    print("10 < 20  = ${lt}")
+    print("10 <= 10 = ${lte}")
+    print("10 > 5   = ${gt}")
+    print("10 >= 11 = ${gte}")
+    print("10 == 10 = ${eq}")
+    print("10 != 99 = ${neq}")
+
+    // Logical AND and OR
+    let both   = true && true
+    let either = false || true
+    let neither = false && true
+    print("true && true  = ${both}")
+    print("false || true = ${either}")
+    print("false && true = ${neither}")
+
+    // String concatenation with +
+    let hello = "Hello" + ", " + "World!"
+    print(hello)
+}
